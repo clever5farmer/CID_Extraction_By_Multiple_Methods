@@ -47,7 +47,7 @@ def train_by_model(model, model_name, image_set, round, base_lr=0.01):
     test_slice = get_set_slice(3, NEGATIVENUM, POSITIVENUM, round)
     train_dataset = dl.SegmentationDataset(image_set, test_slice, flag='train')
     test_dataset = dl.SegmentationDataset(image_set, test_slice, flag='test')
-    model = train.train(model, device, train_dataset, num_classes=1, base_lr=base_lr, epochs=200)
+    model = train.train(model, device, train_dataset, num_classes=1, base_lr=base_lr, epochs=20)
     torch.save(model.state_dict(), os.path.join(resultDir,model_name+'.pth'))
     _, _, label_img = image_set.getImageSet(test_slice, 'test')
     fileName_set = image_set.getFileNameSet(test_slice, 'train')
@@ -69,13 +69,7 @@ def train_by_model(model, model_name, image_set, round, base_lr=0.01):
     
 os.makedirs(resultDir, exist_ok=True)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = getTransUnet.get_transNet(1)
-#model = UNet(1, 1)
-model = model.to(device=device)
-model_stats = summary(model, (1,1,256,256),verbose=0)
-with open(os.path.join(resultDir, 'transUnet'+"_modelInfo.txt"),"w") as f:
-    f.write(str(model_stats))
-image_set = dl.ImgageSet(dataset_dir='../dataset')
+image_set = dl.ImageSet(dataset_dir='../dataset')
 for i in range(KCONST):
     def train_md_convnet(block_num, dilation_rates, layer_num, net_name):
         start_time = time.time()
@@ -95,13 +89,12 @@ for i in range(KCONST):
     train_md_convnet(8, [1,2,5,9], 4, "md_block8_layer1+2+5+9")
     train_md_convnet(6, [1,2,5,9], 4, "md_block6_layer1+2+5+9")
     '''
-    for j in range(5):
+    for j in range(1):
         train_md_convnet(10, [1,2,5,9], 4, "md_block10_layer1+2+5+9_"+str(j))
     '''
     train_md_convnet(12, [1,2,5,9], 4, "md_block12_layer1+2+5+9")
     train_md_convnet(10, [1,2,3,5], 4, "md_block10_layer1+2+3+5")
     train_md_convnet(10, [1,2,3,5,7,11], 6, "md_block10_layer1+2+3+5+7+11")
-    '''
     '''
     start_time = time.time()
     model = getTransUnet.get_transNet(1, bMask=False)
@@ -111,7 +104,6 @@ for i in range(KCONST):
     end_time = time.time()
     with open(os.path.join(resultDir, model_name+'.txt'), "a+") as f:
         f.writelines("fold" + str(i) + ": " + str(end_time-start_time)+'\n')
-    '''
     start_time = time.time()
     model = UNet(1, 1)
     model = model.to(device=device)
@@ -124,7 +116,6 @@ for i in range(KCONST):
     model = DilatedNet8(1, 1)
     model = model.to(device=device)
     train_by_model(model, 'multiscaledilated8', image_set, i, base_lr=0.01)
-    '''
     model = DilatedNet(1, 1)
     model = model.to(device=device)
     train_by_model(model, 'multiscaledilated10', image_set, i, base_lr=0.01)
@@ -140,6 +131,8 @@ for i in range(KCONST):
     model = DilatedNet(1, 1)
     model = model.to(device=device)
     train_by_model(model, 'multiscaledilated10_4', image_set, i, base_lr=0.01)
+    
+    '''
     #model = DilatedNet12(1, 1)
     #model = model.to(device=device)
     #train_by_model(model, 'multiscaledilated12', image_set, i, base_lr=0.01)

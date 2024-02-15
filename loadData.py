@@ -33,7 +33,7 @@ def readImages(dirPath):
     #print(imgList[0])
     return np.array(imgList), fileNameList
 
-class ImgageSet:
+class ImageSet:
     def __init__(self, dataset_dir) -> None:
         #self.negativeOrder = list(range(0,39))
         #self.positiveOrder = list(range(39,58))
@@ -119,7 +119,7 @@ class ImgageSet:
         return rawImageList
     
 class SegmentationDataset(Dataset):
-    def __init__(self, image_set: ImgageSet, set_slice, flag = 'test') -> None:
+    def __init__(self, image_set: ImageSet, set_slice, flag = 'test') -> None:
         self.set_size, self.imageSet, self.labelImages = image_set.getImageSet(set_slice, flag)
         self.transform = transforms.Compose([
                 transforms.ToTensor() # 0-255 -> 0-1, dimensions (H, W, C) -> (C, H, W)

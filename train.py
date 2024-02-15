@@ -36,7 +36,7 @@ def train(
     step = 0
     #criterion = nn.CrossEntropyLoss()
     criterion = nn.BCELoss()
-    dsc_loss = DiceLoss(num_classes)
+    dsc_loss = DiceLoss(num_classes) # didn't work
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = 1e10
     iter_num = 0
